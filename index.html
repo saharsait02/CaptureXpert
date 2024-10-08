@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CaptureXpert Mobile App</title>
+
+    <!-- Include FontAwesome for icons -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #435e6e; /* Blue background */
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        img {
+            max-width: 80%;
+            height: auto;
+        }
+        .ask-btn {
+            margin-top: 20px;
+            padding: 15px 30px;
+            font-size: 18px;
+            color: #002c61;
+            background-color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .ask-btn:hover {
+            background-color: #d1eaff;
+        }
+
+        .chat-container {
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100vh;
+        }
+        .chat-history {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: white;
+        }
+        .chat-history .message {
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .message strong {
+            color: #002c61;
+        }
+        .user-message {
+            align-self: flex-end;
+            background-color: #d1eaff;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 70%;
+            margin-bottom: 10px;
+        }
+        .ai-message {
+            align-self: flex-start;
+            background-color: #f1f1f1;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 70%;
+            margin-bottom: 10px;
+        }
+        .input-container {
+            display: flex;
+            align-items: center;
+            background-color: #ffffff;
+            padding: 10px 20px;
+            box-shadow: 0px -2px 10px rgba(0,0,0,0.1);
+        }
+        .input-container input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background-color: #f1f1f1;
+            margin-right: 10px;
+            font-size: 16px;
+        }
+        .input-container input:focus {
+            outline: none;
+        }
+        .input-container button {
+            background-color: #002c61;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .input-container button:hover {
+            background-color: #00529b;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Landing page -->
+    <div class="container" id="landingPage">
+        <img src="/CaptureXpert_logo.png" alt="CaptureXpert Logo" />
+        <button class="ask-btn" onclick="showQA()">Ask me!</button>
+    </div>
+
+    <!-- ChatGPT-style Q&A page -->
+    <div class="chat-container" id="qnaPage">
+        <!-- Chat history section -->
+        <div id="chatHistory" class="chat-history"></div>
+
+        <!-- Input field with send button as an arrow -->
+        <div class="input-container">
+            <input type="text" id="question" placeholder="Type your question here">
+            <button onclick="askAI()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Function to show the Q&A interface when the button is clicked
+        function showQA() {
+            document.getElementById('landingPage').style.display = 'none'; // Hide the landing page
+            document.getElementById('qnaPage').style.display = 'flex'; // Show the Q&A page
+        }
+
+        async function askAI() {
+            const question = document.getElementById("question").value;
+            const chatHistoryDiv = document.getElementById("chatHistory");
+
+            if (!question) {
+                chatHistoryDiv.innerHTML += "<p class='message'>Please enter a question.</p>";
+                return;
+            }
+
+            // Append the user's question to the chat history
+            chatHistoryDiv.innerHTML += `<div class="message user-message"><strong>You:</strong> ${question}</div>`;
+            document.getElementById("question").value = ""; // Clear the input field
+            chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight; // Scroll to the bottom of the chat
+
+            try {
+                const result = await fetch("https://api.openai.com/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer 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`
+                    },
+                    body: JSON.stringify({
+                        model: "gpt-3.5-turbo",
+                        messages: [{ role: "user", content: question }],
+                        max_tokens: 100
+                    })
+                });
+
+                const data = await result.json();
+
+                if (!data.choices || data.choices.length === 0) {
+                    throw new Error("No response available from the AI.");
+                }
+
+                const aiResponse = data.choices[0].message.content.trim();
+
+                // Append the AI's response to the chat history
+                chatHistoryDiv.innerHTML += `<div class="message ai-message"><strong>CaptureXpert:</strong> ${aiResponse}</div>`;
+                chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight; // Scroll to the bottom of the chat
+            } catch (error) {
+                chatHistoryDiv.innerHTML += `<div class="message ai-message"><strong>Error:</strong> ${error.message}</div>`;
+            }
+        }
+    </script>
+
+</body>
+</html>
