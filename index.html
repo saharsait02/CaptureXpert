@@ -3,32 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CaptureXpert Mobile App</title>
 
-    <!-- Include FontAwesome for icons -->
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #435e6e; /* Blue background */
+            background-color: #6096BA; /* Blue background */
             margin: 0;
             padding: 0;
             height: 100vh;
             display: flex;
             flex-direction: column;
-        }
-        .container {
-            display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh;
         }
+
+        .container {
+            text-align: center;
+        }
+
         img {
             max-width: 80%;
             height: auto;
         }
+
         .ask-btn {
             margin-top: 20px;
             padding: 15px 30px;
@@ -40,65 +40,65 @@
             cursor: pointer;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
+
         .ask-btn:hover {
             background-color: #d1eaff;
         }
 
         .chat-container {
             display: none;
-            flex-direction: column;
-            justify-content: space-between;
-            height: 100vh;
-        }
-        .chat-history {
-            flex-grow: 1;
-            padding: 20px;
-            overflow-y: auto;
+            width: 100%;
+            max-width: 600px;
             background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
         }
-        .chat-history .message {
-            margin: 10px 0;
-            display: flex;
-            flex-direction: column;
+
+        .chat-history {
+            height: 300px;
+            overflow-y: auto;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 10px;
         }
-        .message strong {
-            color: #002c61;
+
+        .message {
+            margin-bottom: 10px;
         }
+
         .user-message {
-            align-self: flex-end;
+            text-align: right;
             background-color: #d1eaff;
             padding: 10px;
             border-radius: 8px;
+            display: inline-block;
             max-width: 70%;
-            margin-bottom: 10px;
         }
+
         .ai-message {
-            align-self: flex-start;
+            text-align: left;
             background-color: #f1f1f1;
             padding: 10px;
             border-radius: 8px;
+            display: inline-block;
             max-width: 70%;
-            margin-bottom: 10px;
         }
+
         .input-container {
             display: flex;
-            align-items: center;
-            background-color: #ffffff;
-            padding: 10px 20px;
-            box-shadow: 0px -2px 10px rgba(0,0,0,0.1);
+            margin-top: 20px;
         }
+
         .input-container input {
             flex: 1;
             padding: 10px;
-            border: none;
-            border-radius: 8px;
-            background-color: #f1f1f1;
-            margin-right: 10px;
             font-size: 16px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            margin-right: 10px;
         }
-        .input-container input:focus {
-            outline: none;
-        }
+
         .input-container button {
             background-color: #002c61;
             color: white;
@@ -107,29 +107,29 @@
             border-radius: 50%;
             cursor: pointer;
             font-size: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
-        .input-container button:hover {
-            background-color: #00529b;
+
+        .input-container button i {
+            font-size: 16px;
         }
     </style>
 </head>
 <body>
 
-    <!-- Landing page -->
+    <!-- Landing Page -->
     <div class="container" id="landingPage">
-        <img src="/CaptureXpert_logo.png" alt="CaptureXpert Logo" />
-        <button class="ask-btn" onclick="showQA()">Ask me!</button>
+        <img src="CaptureXpert_logo.png" alt="CaptureXpert Logo" />
+        <button class="ask-btn" onclick="showQA()">Ask me</button>
     </div>
 
-    <!-- ChatGPT-style Q&A page -->
+    <!-- ChatGPT-style Q&A Page -->
     <div class="chat-container" id="qnaPage">
-        <!-- Chat history section -->
+        <h2>CaptureXpert Q&A</h2>
+
+        <!-- Chat History -->
         <div id="chatHistory" class="chat-history"></div>
 
-        <!-- Input field with send button as an arrow -->
+        <!-- Input field and button -->
         <div class="input-container">
             <input type="text" id="question" placeholder="Type your question here">
             <button onclick="askAI()">
@@ -141,30 +141,33 @@
     <script>
         // Function to show the Q&A interface when the button is clicked
         function showQA() {
-            document.getElementById('landingPage').style.display = 'none'; // Hide the landing page
-            document.getElementById('qnaPage').style.display = 'flex'; // Show the Q&A page
+            document.getElementById('landingPage').style.display = 'none'; // Hide landing page
+            document.getElementById('qnaPage').style.display = 'block'; // Show Q&A page
         }
 
         async function askAI() {
             const question = document.getElementById("question").value;
-            const chatHistoryDiv = document.getElementById("chatHistory");
 
             if (!question) {
-                chatHistoryDiv.innerHTML += "<p class='message'>Please enter a question.</p>";
+                alert("Please enter a question.");
                 return;
             }
 
-            // Append the user's question to the chat history
+            // Append user question to chat history
+            const chatHistoryDiv = document.getElementById("chatHistory");
             chatHistoryDiv.innerHTML += `<div class="message user-message"><strong>You:</strong> ${question}</div>`;
-            document.getElementById("question").value = ""; // Clear the input field
-            chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight; // Scroll to the bottom of the chat
+            document.getElementById("question").value = ""; // Clear input field
+
+            // Scroll to the bottom
+            chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
 
             try {
+                // Fetch AI response
                 const result = await fetch("https://api.openai.com/v1/chat/completions", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        "Authorization": `Bearer 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`
+                        "Authorization": `Bearer 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`  // Replace with your OpenAI API key
                     },
                     body: JSON.stringify({
                         model: "gpt-3.5-turbo",
@@ -179,12 +182,15 @@
                     throw new Error("No response available from the AI.");
                 }
 
+                // Append AI response to chat history
                 const aiResponse = data.choices[0].message.content.trim();
-
-                // Append the AI's response to the chat history
                 chatHistoryDiv.innerHTML += `<div class="message ai-message"><strong>CaptureXpert:</strong> ${aiResponse}</div>`;
-                chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight; // Scroll to the bottom of the chat
+
+                // Scroll to the bottom
+                chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
+
             } catch (error) {
+                // Handle errors and display the message in chat
                 chatHistoryDiv.innerHTML += `<div class="message ai-message"><strong>Error:</strong> ${error.message}</div>`;
             }
         }
